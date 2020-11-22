@@ -22,7 +22,7 @@ app.config["SPLITWISE"] = {
 }
 app.config["HOST"] = os.environ["HOST"]
 app.secret_key = os.environ["SECRET_KEY"]
-if "DATABASE_URL" in app.config:
+if "DATABASE_URL" in os.environ:
     db_parsed_url = urllib.parse.urlparse(os.environ["DATABASE_URL"])
     username = db_parsed_url.username
     password = db_parsed_url.password
