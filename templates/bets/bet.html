@@ -47,7 +47,7 @@
                                         {% if o["no_price"] %}{{ o["no_price"] }}{% else %}-{% endif %}
                                     </span>
                                 </td>
-                                {% if not bet.closed_at %}
+                                {% if not bet.closed %}
                                     <td>
                                         <a href="{{ url_for("bets.bid", outcome=o.id, dir="yes") }}"
                                            class="btn btn-sm btn-success">Bid</a>
@@ -90,7 +90,7 @@
                                 </thead>
                                 <tbody>
                                 {% for b in o.exposure %}
-                                    {% if not (bet.resolved_at and b.cancel_link) %}
+                                    {% if not (bet.resolved and b.cancel_link) %}
                                         <tr>
                                             <td>{{ b.price }}</td>
                                             <td>{{ b.amount }}</td>
@@ -100,7 +100,7 @@
                                                 <span class="badge badge-danger">NO</span>
                                             {% endif %}</td>
                                             <td>
-                                                {% if bet.resolved_at %}
+                                                {% if bet.resolved %}
                                                     {% if (o == bet.won_outcome) == b.yes %}
                                                         <span class="badge badge-success">{{ b.amount * (100 - b.price) }}</span>
                                                     {% else %}
