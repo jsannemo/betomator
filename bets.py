@@ -1,9 +1,10 @@
 import datetime
 
-from flask import Blueprint, render_template, redirect, url_for, request
+from flask import Blueprint, render_template, redirect, url_for, request, logging, current_app
 from flask_login import login_required, current_user
 from flask_wtf import FlaskForm
 from sqlalchemy import func, or_, and_
+from sqlalchemy.orm import joinedload
 from werkzeug.exceptions import BadRequest, NotFound, Forbidden
 from wtforms import StringField, TextAreaField, SubmitField, FieldList, SelectField
 from wtforms.fields.html5 import IntegerField, DateTimeLocalField
@@ -21,28 +22,38 @@ def _my_bets(bets):
     return [bet for bet in bets if bet.owner == current_user]
 
 
+def _bet_list(filter):
+    bets = db.session.query(Bet).filter(filter(Bet)).all()
+    yes_bets = db.session.query(Outcome, func.max_(Bid.price))\
+        .join(Outcome.bet).join(Outcome.bids).filter(and_(filter(Bet), Bid.yes_bid == True)).all()
+    no_bets = db.session.query(Outcome, func.max_(Bid.price))\
+        .join(Outcome.bet).join(Outcome.bids).filter(and_(filter(Bet), Bid.yes_bid == False)).all()
+    current_app.logger.info(yes_bets)
+    current_app.logger.info(no_bets)
+
+    return bets, {k: v for (k, v) in yes_bets}, {k: v for (k, v) in no_bets}
+
+
+def _render_list(filter):
+    bets, yes_prices, no_prices = _bet_list(filter)
+    my_bets = _my_bets(bets)
+    return render_template("bets/list.html", bets=bets, my_bets=my_bets, yes_prices=yes_prices, no_prices=no_prices)
+
 @blueprint.route("/")
 @login_required
 def list_bets():
-    bets = db.session.query(Bet).filter(or_(Bet.closed_at == None, Bet.closed_at >= datetime.datetime.now())).all()
-    my_bets = _my_bets(bets)
-    return render_template("bets/list.html", bets=bets, my_bets=my_bets)
+    return _render_list(lambda bet: or_(bet.closed_at == None, bet.closed_at >= datetime.datetime.now()))
 
 
 @blueprint.route("/unresolved")
 @login_required
 def unresolved_bets():
-    bets = db.session.query(Bet).filter(and_(Bet.resolved_at == None, Bet.closed_at <= datetime.datetime.now())).all()
-    my_bets = _my_bets(bets)
-    return render_template("bets/list.html", bets=bets, my_bets=my_bets)
-
+    return _render_list(lambda bet: and_(bet.resolved_at == None, bet.closed_at <= datetime.datetime.now()))
 
 @blueprint.route("/past")
 @login_required
 def past_bets():
-    bets = db.session.query(Bet).filter(Bet.resolved_at.isnot(None)).all()
-    my_bets = _my_bets(bets)
-    return render_template("bets/list.html", bets=bets, my_bets=my_bets)
+    return _render_list(lambda bet: bet.resolved_at.isnot(None))
 
 
 class CreateBetForm(FlaskForm):
@@ -187,9 +198,10 @@ class CreateBidForm(FlaskForm):
                       choices=["yes", "no"],
                       description="Whether you bet that the outcome happens (YES) or not (NO).",
                       validators=[DataRequired()])
-    price = IntegerField("Price", render_kw={"min": 1, "max": 99},
-                         validators=[NumberRange(min=1, max=99), DataRequired()])
+    price = IntegerField("Price (öre)", description="The price in öre SEK you are willing to pay per contract",
+                         render_kw={"min": 1, "max": 99}, validators=[NumberRange(min=1, max=99), DataRequired()])
     amount = IntegerField("Amount", render_kw={"min": 1, "max": 1000},
+                          description="The number of contracts you want to buy",
                           validators=[NumberRange(min=1, max=1000), DataRequired()])
     submit_button = SubmitField("Create Bid")
 

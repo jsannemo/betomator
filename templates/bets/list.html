@@ -1,4 +1,6 @@
 {% extends "layout.html" %}
+{% from 'bootstrap/utils.html' import render_icon %}
+
 {% block title %}Bet-O-Mator Dashboard{% endblock %}
 {% block content %}
     <div class="container mt-5">
@@ -10,6 +12,7 @@
                         <thead class="table-dark">
                         <tr>
                             <th scope="col">Title</th>
+                            <th scope="col"></th>
                         </tr>
                         </thead>
                         <tbody>
@@ -17,6 +20,31 @@
                             <tr>
                                 <td>
                                     <a href="{{ url_for("bets.bet", bet_id=b.bet_id) }}">{{ b.title }}</a>
+                                </td>
+                                <td>
+                                    {% for o in b.outcomes %}
+                                        <span class="mr-4 badge badge-light" style="font-size: 1rem">
+                                        <span class="text-muted">
+                                            {{ o.title }}:
+                                        </span>
+                                            <span class="">
+                                                {{ render_icon("check", color="success") }}
+                                                {% if o in no_prices %}
+                                                {{ 100 - no_prices[o] }}
+                                                {% else %}
+                                                    NA
+                                                {% endif %}
+                                            </span>
+                                            <span class="ml-1">
+                                                {{ render_icon("x", color="danger") }}
+                                                {% if o in yes_prices %}
+                                                    {{ 100 - yes_prices[o] }}
+                                                {% else %}
+                                                    NA
+                                                {% endif %}
+                                            </span>
+                                        </span>
+                                    {% endfor %}
                                 </td>
                             </tr>
                         {% endfor %}
