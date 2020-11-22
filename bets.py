@@ -7,7 +7,7 @@ from sqlalchemy import func, or_, and_
 from werkzeug.exceptions import BadRequest, NotFound, Forbidden
 from wtforms import StringField, TextAreaField, SubmitField, FieldList, SelectField
 from wtforms.fields.html5 import IntegerField, DateTimeLocalField
-from wtforms.validators import DataRequired, NumberRange, Optional
+from wtforms.validators import DataRequired, NumberRange
 
 import engine
 import models
@@ -87,7 +87,7 @@ def _contract_to_exposure_data(type, price, amount):
 def _outcome_data(bet):
     data = []
     for o in bet.outcomes:
-        last_yes = db.session.query(Contract).filter_by(outcome=o).order_by(Contract.contract_id.desc()).first()
+        last_yes = db.session.query(Contract).filter_by(outcome=o, yes_contract=True).order_by(Contract.contract_id.desc()).first()
         yes_price = db.session.query(func.max(Bid.price)).filter_by(outcome=o, yes_bid=True).first()[0]
         no_price = db.session.query(func.max(Bid.price)).filter_by(outcome=o, yes_bid=False).first()[0]
 
