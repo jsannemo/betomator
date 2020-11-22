@@ -123,7 +123,15 @@
                         {% endif %}
                     {% endfor %}
                     <h2>Rules</h2>
-                    {{ bet.description }}
+                    {% if bet.closed_at %}
+                        {% if bet.closed %}
+                            <strong>Bidding closed at {{ bet.closed_at.strftime("%Y-%m-%d %H:%M") }}</strong>
+                        {% else %}
+                            <strong>Bidding closes at {{ bet.closed_at.strftime("%Y-%m-%d %H:%M") }}</strong>
+                        {% endif %}
+                        <br>
+                    {% endif %}
+                    <span style="white-space: pre-wrap;">{{ bet.description }}</span>
                 </div>
             </div>
         </div>
