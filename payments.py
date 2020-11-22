@@ -57,8 +57,10 @@ def resolve_payment(txn, bet):
         "details": f"BET:{bet.bet_id}"
     }
     for i, (user, amounts) in enumerate(pay.items()):
-        expense[f"users__{i}__paid_share"] = _dec(amounts[0])
-        expense[f"users__{i}__owed_share"] = _dec(amounts[1] * 100)
+        # The amount you must pay into the pool (contract costs)
+        expense[f"users__{i}__owed_share"] = _dec(amounts[0])
+        # The amount you already have paid into the (contract winnings)
+        expense[f"users__{i}__paid_share"] = _dec(amounts[1] * 100)
         expense[f"users__{i}__user_id"] = user
     response = _splitwise.post("create_expense", data=json.dumps(expense), format="json",
                                content_type="application/json").data
