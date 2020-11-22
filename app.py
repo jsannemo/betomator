@@ -24,6 +24,7 @@ if app.config["ENV"] == "development":
     app.secret_key = "test secret key"
 else:
     app.config["HOST"] = os.environ["HOST"]
+    app.secret_key = os.environ["SECRET_KEY"]
     db_parsed_url = urllib.parse.urlparse(os.environ["DATABASE_URL"])
     username = db_parsed_url.username
     password = db_parsed_url.password
