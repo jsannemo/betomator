@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+{% block title %}Bet-O-Mator Dashboard{% endblock %}
+{% block content %}
+    <div class="container mt-5">
+        <div class="page-header">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1>Bets</h1>
+                    <table class="table">
+                        <thead class="table-dark">
+                        <tr>
+                            <th scope="col">Title</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for b in bets %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for("bets.bet", bet_id=b.bet_id) }}">{{ b.title }}</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+                    {% if my_bets %}
+                        <h1>Your Bets</h1>
+                        <table class="table">
+                            <thead class="table-dark">
+                            <tr>
+                                <th scope="col">Title</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for b in my_bets %}
+                                <tr>
+                                    <td>
+                                        <a href="{{ url_for("bets.bet", bet_id=b.bet_id) }}">{{ b.title }}</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

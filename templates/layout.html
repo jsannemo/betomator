@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% from 'bootstrap/nav.html' import render_nav_item %}
+{% block body %}
+    <div class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a href="../" class="navbar-brand">Bet-O-Mator</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive"
+                    aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarResponsive">
+                <ul class="navbar-nav mr-auto">
+                    {{ render_nav_item("bets.create", "Create Bet") }}
+                    {{ render_nav_item("bets.list_bets", "Open Bets") }}
+                    {{ render_nav_item("bets.unresolved_bets", "Unresolved Bets") }}
+                    {{ render_nav_item("bets.past_bets", "Past Bets") }}
+                </ul>
+                <span class="badge badge-dark">{{ current_user.name }}</span>
+            </div>
+        </div>
+    </div>
+    {% block content %}{% endblock %}
+{% endblock %}

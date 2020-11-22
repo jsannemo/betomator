@@ -1,0 +1,4 @@
+.private_env
+__pycache__
+example.sqlite
+.idea

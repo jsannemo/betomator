@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+{% from 'bootstrap/form.html' import render_field, render_form_row, render_hidden_errors %}
+{% block title %}Bet-O-Mator - {{ bet.title }}{% endblock %}
+{% block content %}
+    <div class="container mt-3">
+        <div class="page-header">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1>Bid For: {{ bet.title }} - {{ outcome.title }}</h1>
+                    <form action="" method="post">
+                        {{ render_hidden_errors(bid_form) }}
+                        {{ bid_form.hidden_tag() }}
+                        <div class="form-group row">
+                            <div class="col-5">
+                                {{ render_field(bid_form.amount) }}
+                            </div>
+                            <div class="col-5">
+                                {{ render_field(bid_form.price) }}
+                            </div>
+                            <div class="col-1">
+                                <div class="form-group required">
+                                    <label class="form-control-label" for="amount">Type</label>
+                                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                        <label class="btn btn-secondary {% if dir == "yes" %}active{% endif %}">
+                                            <input type="radio" name="dir" value="yes" id="yes"
+                                                   {% if dir == "yes" %}checked{% endif %}> YES
+                                        </label>
+                                        <label class="btn btn-secondary {% if dir == "no" %}active{% endif %}">
+                                            <input type="radio" name="dir" value="no" id="no"
+                                                   {% if dir == "no" %}checked{% endif %}> NO
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {{ render_form_row([bid_form.submit_button]) }}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

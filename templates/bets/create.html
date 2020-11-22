@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+{% from 'bootstrap/form.html' import render_form_row, render_field, render_hidden_errors %}
+{% block title %}Bet-O-Mator - Create Bet{% endblock %}
+{% block content %}
+    <div class="container mt-3">
+        <div class="page-header">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1>Create Bet</h1>
+                    <form action="" method="post">
+                        {{ render_hidden_errors(create_form) }}
+                        {{ create_form.hidden_tag() }}
+                        {{ render_form_row([create_form.name]) }}
+                        {{ render_form_row([create_form.description]) }}
+                        {{ render_form_row([create_form.outcomes]) }}
+                        <button class="btn btn-secondary" type="button" id="add-outcome">Add outcome</button>
+                        <hr>
+                        {{ render_form_row([create_form.submit_button]) }}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="display: none" id="create-template">
+        {{ render_form_row([create_form.outcomes[0]]) }}
+    </div>
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            $("#add-outcome").click(function () {
+                console.log($("fieldset input").length);
+                const nextId = $("fieldset input").length;
+                const tpl = $("#create-template").clone().children().children().children();
+                tpl.children("label").attr("for", "outcomes-" + nextId);
+                tpl.children("input").attr("name", "outcomes-" + nextId);
+                tpl.children("input").attr("id", "outcomes-" + nextId);
+                console.log(tpl);
+                $("fieldset").append(tpl);
+            });
+        });
+    </script>
+{% endblock %}

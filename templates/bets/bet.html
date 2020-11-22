@@ -1,0 +1,131 @@
+{% extends "layout.html" %}
+{% from 'bootstrap/form.html' import render_form %}
+{% block title %}Bet-O-Mator - {{ bet.title }}{% endblock %}
+{% block content %}
+    <div class="container mt-3">
+        <div class="page-header">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1>{{ bet.title }}</h1>
+                    <table class="table">
+                        <thead class="table-dark">
+                        <tr>
+                            <th scope="col"></th>
+                            <th scope="col">Last YES price</th>
+                            <th scope="col">YES price</th>
+                            {% if not bet.closed_at %}
+                                <th scope="col"></th>
+                            {% endif %}
+                            <th scope="col">NO price</th>
+                            {% if not bet.closed_at %}
+                                <th scope="col"></th>
+                            {% endif %}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for o in outcomes %}
+                            <tr style="line-height: 1.4rem">
+                                <td>
+                                    <span style="font-size: 1.2rem; vertical-align: middle;">
+                                    {{ o["title"] }}
+                                        {% if bet.resolved_at %}
+                                            {% if o == bet.won_outcome %}
+                                                <span class="badge badge-success">YES</span>
+                                            {% else %}
+                                                <span class="badge badge-danger">NO</span>
+                                            {% endif %}
+                                        {% endif %}
+                                </span>
+                                </td>
+                                <td>
+                                    <span style="font-size: 1.4rem; vertical-align: middle;">
+                                        {% if o["last_yes"] %}{{ o["last_yes"] }}{% else %}-{% endif %}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span style="font-size: 1.2rem; vertical-align: middle;">
+                                        {% if o["no_price"] %}{{ o["no_price"] }}{% else %}-{% endif %}
+                                    </span>
+                                </td>
+                                {% if not bet.closed_at %}
+                                    <td>
+                                        <a href="{{ url_for("bets.bid", outcome=o.id, dir="yes") }}"
+                                           class="btn btn-sm btn-success">Bid</a>
+                                    </td>
+                                {% endif %}
+                                <td>
+                                    <span style="font-size: 1.2rem; vertical-align: middle;">
+                                        {% if o["yes_price"] %}{{ o["yes_price"] }}{% else %}-{% endif %}
+                                    </span>
+                                </td>
+                                {% if not bet.closed_at %}
+                                    <td>
+                                        <a href="{{ url_for("bets.bid", outcome=o.id, dir="no") }}"
+                                           class="btn btn-sm btn-danger">Bid</a>
+                                    </td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    {% if bet.owner == current_user and not bet.resolved_at %}
+                        <h2>Admin</h2>
+                        {% if not bet.closed_at %}
+                            {{ render_form(close_form, action=url_for("bets.close_bet", bet_id=bet.bet_id)) }}
+                        {% elif not bet.resolved_at %}
+                            {{ render_form(resolve_form, action=url_for("bets.resolve_bet", bet_id=bet.bet_id)) }}
+                        {% endif %}
+                    {% endif %}
+                    {% for o in outcomes %}
+                        {% if o.exposure %}
+                            <h2>Your Exposure: {{ o.title }}</h2>
+                            <table class="table">
+                                <thead class="table-dark">
+                                <tr>
+                                    <th scope="col">Price</th>
+                                    <th scope="col">Amount</th>
+                                    <th scope="col">Type</th>
+                                    <th scope="col"></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for b in o.exposure %}
+                                    {% if not (bet.resolved_at and b.cancel_link) %}
+                                        <tr>
+                                            <td>{{ b.price }}</td>
+                                            <td>{{ b.amount }}</td>
+                                            <td>{% if b.yes %}
+                                                <span class="badge badge-success">YES</span>
+                                            {% else %}
+                                                <span class="badge badge-danger">NO</span>
+                                            {% endif %}</td>
+                                            <td>
+                                                {% if bet.resolved_at %}
+                                                    {% if (o == bet.won_outcome) == b.yes %}
+                                                        <span class="badge badge-success">{{ b.amount * (100 - b.price) }}</span>
+                                                    {% else %}
+                                                        <span class="badge badge-danger">{{ b.amount * b.price }}</span>
+                                                    {% endif %}
+                                                {% elif b.cancel_link %}
+                                                    <form action="{{ b.cancel_link }}" method="POST">
+                                                        <button type="submit" class="btn btn-sm btn-danger">Cancel
+                                                        </button>
+                                                    </form>
+                                                {% else %}
+                                                    <span class="badge badge-primary">Fulfilled</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        {% endif %}
+                    {% endfor %}
+                    <h2>Rules</h2>
+                    {{ bet.description }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
