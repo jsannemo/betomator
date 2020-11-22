@@ -202,7 +202,7 @@ def bid(outcome, dir):
         raise BadRequest
     with models.transaction() as txn:
         outcome = txn.query(Outcome).filter_by(outcome_id=outcome).first_or_404()
-        if outcome.bet.closed_at:
+        if outcome.bet.closed:
             raise BadRequest
         if form.validate_on_submit():
             engine.resolve_bet(txn, current_user, outcome, form.price.data, form.amount.data, form.dir.data == "yes")
