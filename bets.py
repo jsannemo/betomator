@@ -117,7 +117,7 @@ class ResolveForm(FlaskForm):
     resolve_time = DateTimeLocalField("Resolve Time",
                                       description="The time at which the bet should have been considered resolved. Any "
                                                   "contracts past this time is disregarded.",
-                                      default=datetime.datetime.now(),
+                                      default=lambda: datetime.datetime.now(),
                                       validators=[DataRequired()],
                                       format='%Y-%m-%dT%H:%M')
     resolve_choice = SelectField("Resolved Outcome",
@@ -135,7 +135,7 @@ class CloseForm(FlaskForm):
                                     description="The time at which the bet should close.",
                                     format='%Y-%m-%dT%H:%M',
                                     validators=[DataRequired()],
-                                    default=datetime.datetime.now())
+                                    default=lambda: datetime.datetime.now())
     submit_button = SubmitField("Schedule Close")
 
 
