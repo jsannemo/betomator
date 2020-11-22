@@ -25,9 +25,9 @@ def _my_bets(bets):
 def _bet_list(filter):
     bets = db.session.query(Bet).filter(filter(Bet)).all()
     yes_bets = db.session.query(Outcome, func.max_(Bid.price))\
-        .join(Outcome.bet).join(Outcome.bids).filter(and_(filter(Bet), Bid.yes_bid == True)).all()
+        .join(Outcome.bet).join(Outcome.bids).filter(and_(filter(Bet), Bid.yes_bid == True)).group_by(Outcome).all()
     no_bets = db.session.query(Outcome, func.max_(Bid.price))\
-        .join(Outcome.bet).join(Outcome.bids).filter(and_(filter(Bet), Bid.yes_bid == False)).all()
+        .join(Outcome.bet).join(Outcome.bids).filter(and_(filter(Bet), Bid.yes_bid == False)).group_by(Outcome).all()
     current_app.logger.info(yes_bets)
     current_app.logger.info(no_bets)
 
