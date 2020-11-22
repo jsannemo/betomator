@@ -3,11 +3,11 @@ import datetime
 from flask import Blueprint, render_template, redirect, url_for, request
 from flask_login import login_required, current_user
 from flask_wtf import FlaskForm
-from sqlalchemy import func
+from sqlalchemy import func, or_, and_
 from werkzeug.exceptions import BadRequest, NotFound, Forbidden
 from wtforms import StringField, TextAreaField, SubmitField, FieldList, SelectField
 from wtforms.fields.html5 import IntegerField, DateTimeLocalField
-from wtforms.validators import DataRequired, NumberRange
+from wtforms.validators import DataRequired, NumberRange, Optional
 
 import engine
 import models
@@ -24,7 +24,7 @@ def _my_bets(bets):
 @blueprint.route("/")
 @login_required
 def list_bets():
-    bets = db.session.query(Bet).filter(Bet.closed_at.is_(None)).all()
+    bets = db.session.query(Bet).filter(or_(Bet.closed_at == None, Bet.closed_at >= datetime.datetime.now())).all()
     my_bets = _my_bets(bets)
     return render_template("bets/list.html", bets=bets, my_bets=my_bets)
 
@@ -32,7 +32,7 @@ def list_bets():
 @blueprint.route("/unresolved")
 @login_required
 def unresolved_bets():
-    bets = db.session.query(Bet).filter(Bet.closed_at.isnot(None), Bet.resolved_at.is_(None)).all()
+    bets = db.session.query(Bet).filter(and_(Bet.resolved_at == None, Bet.closed_at <= datetime.datetime.now())).all()
     my_bets = _my_bets(bets)
     return render_template("bets/list.html", bets=bets, my_bets=my_bets)
 
@@ -122,8 +122,12 @@ class ResolveForm(FlaskForm):
                                       format='%Y-%m-%dT%H:%M')
     resolve_choice = SelectField("Resolved Outcome",
                                  description="The outcome that occured. If none of the outcomes occurred, select None.",
-                                 validators=[DataRequired()])
+                                 default=0,
+                                 coerce=int)
     submit_button = SubmitField("Resolve")
+
+    def set_choices_for_bet(self, bet):
+        self.resolve_choice.choices = [(o.outcome_id, o.title) for o in bet.outcomes] + [(0, "None")]
 
 
 class CloseForm(FlaskForm):
@@ -139,9 +143,10 @@ class CloseForm(FlaskForm):
 @login_required
 def bet(bet_id):
     bet = db.session.query(Bet).filter_by(bet_id=bet_id).first_or_404()
-    close_form = CloseForm()
+    print(bet.won_outcome_id)
     resolve_form = ResolveForm()
-    resolve_form.resolve_choice.choices = [(o.outcome_id, o.title) for o in bet.outcomes] + [(None, "None")]
+    close_form = CloseForm()
+    resolve_form.set_choices_for_bet(bet)
     return render_template("bets/bet.html", bet=bet, outcomes=_outcome_data(bet), close_form=close_form,
                            resolve_form=resolve_form)
 
@@ -153,7 +158,7 @@ def close_bet(bet_id):
     if bet.owner != current_user:
         raise Forbidden
     close_form = CloseForm()
-    if not bet.closed_at and close_form.validate_on_submit():
+    if not bet.closed and close_form.validate_on_submit():
         time = close_form.close_time.data
         bet.closed_at = time
         db.session.commit()
@@ -168,12 +173,16 @@ def resolve_bet(bet_id):
         if bet.owner != current_user:
             raise Forbidden
         resolve_form = ResolveForm()
-        resolve_form.resolve_choice.choices = [(o.outcome_id, o.title) for o in bet.outcomes] + [(None, "None")]
-        if bet.closed_at and not bet.resolved_at and resolve_form.validate_on_submit():
+        resolve_form.set_choices_for_bet(bet)
+        if bet.closed and not bet.resolved and resolve_form.validate_on_submit():
             time = resolve_form.resolve_time.data
             bet.resolved_at = time
-            bet.won_outcome = resolve_form.resolve_choice.data
+            choice = resolve_form.resolve_choice.data
+            print(choice)
+            bet.won_outcome_id = choice if choice else None
             payments.resolve_payment(tx, bet)
+            print(bet.resolved_at)
+        print(resolve_form.errors)
     return redirect(url_for("bets.bet", bet_id=bet_id))
 
 

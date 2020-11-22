@@ -13,11 +13,11 @@
                             <th scope="col"></th>
                             <th scope="col">Last YES price</th>
                             <th scope="col">YES price</th>
-                            {% if not bet.closed_at %}
+                            {% if not bet.closed %}
                                 <th scope="col"></th>
                             {% endif %}
                             <th scope="col">NO price</th>
-                            {% if not bet.closed_at %}
+                            {% if not bet.closed %}
                                 <th scope="col"></th>
                             {% endif %}
                         </tr>
@@ -28,8 +28,8 @@
                                 <td>
                                     <span style="font-size: 1.2rem; vertical-align: middle;">
                                     {{ o["title"] }}
-                                        {% if bet.resolved_at %}
-                                            {% if o == bet.won_outcome %}
+                                        {% if bet.resolved %}
+                                            {% if o.id == bet.won_outcome_id %}
                                                 <span class="badge badge-success">YES</span>
                                             {% else %}
                                                 <span class="badge badge-danger">NO</span>
@@ -58,7 +58,7 @@
                                         {% if o["yes_price"] %}{{ o["yes_price"] }}{% else %}-{% endif %}
                                     </span>
                                 </td>
-                                {% if not bet.closed_at %}
+                                {% if not bet.closed %}
                                     <td>
                                         <a href="{{ url_for("bets.bid", outcome=o.id, dir="no") }}"
                                            class="btn btn-sm btn-danger">Bid</a>
@@ -68,11 +68,11 @@
                         {% endfor %}
                         </tbody>
                     </table>
-                    {% if bet.owner == current_user and not bet.resolved_at %}
+                    {% if bet.owner == current_user and not bet.resolved %}
                         <h2>Admin</h2>
-                        {% if not bet.closed_at %}
+                        {% if not bet.closed %}
                             {{ render_form(close_form, action=url_for("bets.close_bet", bet_id=bet.bet_id)) }}
-                        {% elif not bet.resolved_at %}
+                        {% else %}
                             {{ render_form(resolve_form, action=url_for("bets.resolve_bet", bet_id=bet.bet_id)) }}
                         {% endif %}
                     {% endif %}

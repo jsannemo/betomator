@@ -44,7 +44,6 @@ def _create_or_sign_in(username, name, email):
 @blueprint.route("/login/callback")
 def callback():
     next_url = request.args.get("next") or url_for('dashboard.dashboard')
-    print(request.args)
     try:
         resp = _splitwise.authorized_response()
         if not resp or "access_token" not in resp:

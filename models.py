@@ -1,3 +1,4 @@
+import datetime
 from contextlib import contextmanager
 
 from flask.cli import AppGroup
@@ -52,8 +53,16 @@ class Bet(db.Model):
     closed_at = db.Column(db.DateTime)
     resolved_at = db.Column(db.DateTime)
     payment_synced_at = db.Column(db.DateTime)
-    won_outcome = db.Column(db.Integer, db.ForeignKey("outcome.outcome_id", ondelete="CASCADE", use_alter=True),
+    won_outcome_id = db.Column(db.Integer, db.ForeignKey("outcome.outcome_id", ondelete="CASCADE", use_alter=True),
                             nullable=True)
+
+    @property
+    def closed(self):
+        return self.closed_at and self.closed_at <= datetime.datetime.now()
+
+    @property
+    def resolved(self):
+        return self.resolved_at is not None
 
 
 class Outcome(db.Model):
@@ -62,6 +71,7 @@ class Outcome(db.Model):
     title = db.Column(db.String, nullable=False)
     bids = db.relationship("Bid", backref="outcome")
     contracts = db.relationship("Contract", backref="outcome")
+    won_bets = db.relationship("Bet", backref="won_outcome", foreign_keys="Bet.won_outcome_id")
 
 
 class Bid(db.Model):

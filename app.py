@@ -1,3 +1,4 @@
+import datetime
 import os
 import urllib.parse
 
@@ -49,3 +50,7 @@ bootstrap = Bootstrap(app)
 @app.route('/init-db')
 def init():
     models.db.create_all()
+
+@app.context_processor
+def now():
+    return {"now": datetime.datetime.now()}
