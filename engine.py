@@ -24,7 +24,6 @@ def resolve_bet(txn, bidder, outcome, price, amount, yes_dir):
         existing = txn.query(Bid).filter_by(bidder=bidder, outcome=outcome, price=price, yes_bid=yes_dir).first()
         if existing:
             existing.amount += amount
-            existing.save()
         else:
             bid = Bid(outcome=outcome, bidder=bidder, price=price, amount=amount, yes_bid=yes_dir)
             txn.add(bid)
