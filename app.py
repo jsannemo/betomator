@@ -45,4 +45,7 @@ auth.init_app(app)
 models.init_app(app)
 bootstrap = Bootstrap(app)
 
-models.db.create_all()
+
+@app.route('/init-db')
+def init():
+    models.db.create_all()
