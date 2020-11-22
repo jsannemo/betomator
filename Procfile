@@ -1,1 +1,2 @@
-web: gunicorn app:app --workers=1
+web: ./run_server.sh
+release: flask db upgrade

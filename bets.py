@@ -143,7 +143,6 @@ class CloseForm(FlaskForm):
 @login_required
 def bet(bet_id):
     bet = db.session.query(Bet).filter_by(bet_id=bet_id).first_or_404()
-    print(bet.won_outcome_id)
     resolve_form = ResolveForm()
     close_form = CloseForm()
     resolve_form.set_choices_for_bet(bet)
@@ -178,11 +177,8 @@ def resolve_bet(bet_id):
             time = resolve_form.resolve_time.data
             bet.resolved_at = time
             choice = resolve_form.resolve_choice.data
-            print(choice)
             bet.won_outcome_id = choice if choice else None
             payments.resolve_payment(tx, bet)
-            print(bet.resolved_at)
-        print(resolve_form.errors)
     return redirect(url_for("bets.bet", bet_id=bet_id))
 
 

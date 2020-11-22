@@ -1,11 +1,12 @@
 import datetime
 from contextlib import contextmanager
 
-from flask.cli import AppGroup
+from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 
 db = SQLAlchemy()
+migrate = Migrate()
 
 
 @contextmanager
@@ -94,19 +95,6 @@ class Contract(db.Model):
     created_at = db.Column(db.DateTime, nullable=False, server_default=func.now())
 
 
-_db_cli = AppGroup('db')
-
-
-@_db_cli.command('create')
-def _create_db():
-    db.create_all()
-
-
-@_db_cli.command('destroy')
-def _destroy_db():
-    db.drop_all()
-
-
 def init_app(app):
     db.init_app(app)
-    app.cli.add_command(_db_cli)
+    migrate.init_app(app, db)

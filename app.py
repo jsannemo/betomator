@@ -20,13 +20,9 @@ app.config["SPLITWISE"] = {
     "consumer_secret": os.environ["SPLITWISE_SECRET"],
     "base_url": "https://www.splitwise.com/api/v3.0/"
 }
-if app.config["ENV"] == "development":
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///example.sqlite"
-    app.config["HOST"] = "http://127.0.0.1:5000"
-    app.secret_key = "test secret key"
-else:
-    app.config["HOST"] = os.environ["HOST"]
-    app.secret_key = os.environ["SECRET_KEY"]
+app.config["HOST"] = os.environ["HOST"]
+app.secret_key = os.environ["SECRET_KEY"]
+if "DATABASE_URL" in app.config:
     db_parsed_url = urllib.parse.urlparse(os.environ["DATABASE_URL"])
     username = db_parsed_url.username
     password = db_parsed_url.password
@@ -34,6 +30,8 @@ else:
     hostname = db_parsed_url.hostname
     db_url = f"postgresql+psycopg2://{username}:{password}@{hostname}/{database}"
     app.config["SQLALCHEMY_DATABASE_URI"] = db_url
+else:
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["SQLALCHEMY_DATABASE_URI"]
 
 app.config["SPLITWISE_ACCESS_GROUP"] = int(os.environ["SPLITWISE_ACCESS_GROUP"])
 app.config["SPLITWISE_API_KEY"] = os.environ["SPLITWISE_API_KEY"]
@@ -52,11 +50,6 @@ bootstrap = Bootstrap(app)
 @login_required
 def help():
     return render_template("help.html")
-
-
-@app.route('/init-db')
-def init():
-    models.db.create_all()
 
 
 @app.context_processor
