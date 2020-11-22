@@ -101,7 +101,7 @@
                                             {% endif %}</td>
                                             <td>
                                                 {% if bet.resolved %}
-                                                    {% if (o == bet.won_outcome) == b.yes %}
+                                                    {% if (o.id == bet.won_outcome_id) == b.yes %}
                                                         <span class="badge badge-success">{{ b.amount * (100 - b.price) }}</span>
                                                     {% else %}
                                                         <span class="badge badge-danger">{{ b.amount * b.price }}</span>
