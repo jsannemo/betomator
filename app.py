@@ -44,3 +44,5 @@ app.register_blueprint(scoreboard.blueprint)
 auth.init_app(app)
 models.init_app(app)
 bootstrap = Bootstrap(app)
+
+models.db.create_all()

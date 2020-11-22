@@ -17,10 +17,7 @@ To run the development server, perform the following steps:
 - Install Poetry
 - Run `poetry install`
 - Run `poetry shell`
-- Run `FLASK_ENV=development flask db create`
 - Run `FLASK_ENV=development flask run`
 
-To wipe the test database, run 
-`FLASK_ENV=development flask db destroy` followed by
-`FLASK_ENV=development flask db create`.
+To wipe the test database, run `FLASK_ENV=development flask db destroy`.
 

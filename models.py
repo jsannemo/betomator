@@ -93,7 +93,7 @@ def _create_db():
 
 
 @_db_cli.command('destroy')
-def _create_db():
+def _destroy_db():
     db.drop_all()
 
 
