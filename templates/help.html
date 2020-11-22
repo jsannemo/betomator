@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+{% block title %}Bet-O-Mator Dashboard{% endblock %}
+{% block content %}
+    <div class="container mt-5">
+        <div class="page-header">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1>Documentation</h1>
+                    This is a <em>betting market</em>, in which people can place bids on whether an event occurs
+                    or not.
+                    <h2>Creating Bets</h2>
+                    <p>
+                        When creating a bet, you enter a title (preferably phrased as a question) such as "Who wins the 2021 Eurovision Song Contest"?,
+                        a description of the rules used to determine the outcome of the bet, and the series of possible outcomes of the bet.
+                        The rules should be made as unambiguous as possible.
+                    <p>
+                        As a general rule, bets that can not be evaluated - for example, on the result of an election
+                        that was cancelled - is by default <strong>cancelled</strong>. It is possible to instead consider
+                        such bets as having each outcome being a failure, but this should then be stated explicitly in the rules.
+                    <h2>Bidding</h2>
+                    <p>
+                        On each outcome of a bet, one can bid on whether the the outcome happens (YES) or not (NO). Bids for one side of
+                        an outcome is matched against bids for the other side, in a way such that each bid will have a total value of 1 SEK.
+                        This means that if , so that if you bid <em>p</em> öre that an outcome occurs, it is matched
+                        against bids of <em>100 - p</em> that they do not occur, and a contract is entered in which
+                        both players together pay 1 SEK into the contract. The price for the contract is always paid, regardless
+                        of whether you bid on the correct outcome or not.
+                    <p>
+                        For convenience, one can create several bids with the same ask price by entering an <em>amount</em>
+                        larger than one.
+                    <p>
+                        Bids are automatically matched when place, against all accepting bids in increasing price. This means
+                        you may get cheaper contracts than expected when first placing your bid, if there are outstanding opposing bids.
+                    <p>
+                        Mathematically, the price on your bid corresponds to your estimated probability of the event occurring.
+                        If your bid is exactly the true probability on every bet, your expected payout is exactly 0.
+                        If the true probability is consistently higher than the bet, your expected payout is positive,
+                        and if it is lower, your payout is negative.
+                    <h2>Payouts</h2>
+                    <p>
+                        When a bet is <em>resolved</em>, i.e. it has been determined which outcome (if any) was correct,
+                        payouts are handed out by giving 1 SEK to each YES contract of the correct outcome, and to each NO
+                        contract on all the incorrect outcomes. Payouts and contract purchase costs are automatically
+                        synced to the Splitwise groups upon bet resolution.
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

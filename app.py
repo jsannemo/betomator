@@ -2,8 +2,9 @@ import datetime
 import os
 import urllib.parse
 
-from flask import Flask
+from flask import Flask, render_template
 from flask_bootstrap import Bootstrap
+from flask_login import login_required
 
 import auth
 import bets
@@ -47,9 +48,16 @@ models.init_app(app)
 bootstrap = Bootstrap(app)
 
 
+@app.route("/help")
+@login_required
+def help():
+    return render_template("help.html")
+
+
 @app.route('/init-db')
 def init():
     models.db.create_all()
+
 
 @app.context_processor
 def now():
